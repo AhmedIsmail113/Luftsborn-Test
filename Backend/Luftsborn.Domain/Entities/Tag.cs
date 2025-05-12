@@ -7,14 +7,16 @@ using System.Threading.Tasks;
 
 namespace Luftsborn.Domain.Entities
 {
-    public class Tag : BaseEntity
+    public class Tag : ModifiableEntity
     {
-        public Tag(string name)
+        public Tag(Guid creatorUserId, string name):base(creatorUserId)
         {
             Name = name;
             notes = new List<Note>();
+            CreatedOn = DateTime.Now;
+            ModifiedOn = DateTime.Now;
         }
-        private Tag(): this(string.Empty)
+        private Tag(): this(Guid.Empty, string.Empty)
         {
 
         }
@@ -22,9 +24,17 @@ namespace Luftsborn.Domain.Entities
         private IList<Note> notes;
         public IEnumerable<Note> Notes { get { return notes; } }
 
-        public void RenameTag(string newName)
+        public void RenameTag(string newName, Guid modifierUserId)
         {
             Name = newName;
+            ModifiedOn = new DateTimeOffset(DateTime.Now);
+            ModifierUserId = modifierUserId;
+        }
+        public void Delete(Guid deletingUserId)
+        {
+            IsDeleted = true;
+            DeletedOn = DateTimeOffset.Now;
+            DeletingUserId = deletingUserId;
         }
         public void AddNote(Note note) 
         { 

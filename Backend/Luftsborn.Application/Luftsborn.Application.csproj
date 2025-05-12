@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Notes\Queries\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Luftsborn.Domain\Luftsborn.Domain.csproj" />
     <ProjectReference Include="..\Luftsborn.Dtos\Luftsborn.Dtos.csproj" />
   </ItemGroup>

@@ -9,6 +9,6 @@ namespace Luftsborn.Application.Contracts.Repositories
 {
     public interface INoteRepository : ICommonRepository<Note>
     {
-        public Task<IQueryable<Note>> FilterAsync(string? filter = null, Guid? userId = null, bool? isDeleted = false);
+        public Task<IQueryable<Note>> FilterAsync(string? filter = null, Guid? userId = null, Guid? tagId = null, bool? isDeleted = false);
     }
 }

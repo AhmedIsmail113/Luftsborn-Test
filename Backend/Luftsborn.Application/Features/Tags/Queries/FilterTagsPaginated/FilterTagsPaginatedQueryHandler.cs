@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Luftsborn.Application.Contracts.Repositories;
 using Luftsborn.Application.Extensions;
+using Luftsborn.Application.Features.Tags.Queries.FilterTags;
 using Luftsborn.Dtos.Common;
 using Luftsborn.Dtos.Entities.Tag;
 using MediatR;
@@ -11,21 +12,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Luftsborn.Application.Features.Tags.Queries.FilterTags
+namespace Luftsborn.Application.Features.Tags.Queries.FilterTagsPaginated
 {
-    public class FilterTagsQueryHandler : IRequestHandler<FilterTagsQuery, Response<List<TagBasicDto>>>
+    public class FilterTagsPaginatedQueryHandler: IRequestHandler<FilterTagsPaginatedQuery, Response<List<TagBasicDto>>>
     {
         private readonly ITagRepository _tagRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
-        public FilterTagsQueryHandler(ITagRepository tagRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        public FilterTagsPaginatedQueryHandler(ITagRepository tagRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
             _tagRepository = tagRepository;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
         }
 
-        public async Task<Response<List<TagBasicDto>>> Handle(FilterTagsQuery request, CancellationToken cancellationToken)
+        public async Task<Response<List<TagBasicDto>>> Handle(FilterTagsPaginatedQuery request, CancellationToken cancellationToken)
         {
             try
             {
@@ -33,7 +34,7 @@ namespace Luftsborn.Application.Features.Tags.Queries.FilterTags
                 if (userId != null)
                 {
                     var tags = await _tagRepository.FilterAsync(request.Filter, userId);
-                    var orderedTags = (_tagRepository.OrderBy(tags, request.OrderBy, request.IsAcending)).ToList();
+                    var orderedTags = (_tagRepository.OrderBy(tags, request.OrderBy, request.IsAcending)).Paging(request.PageNumber, request.PageSize).ToList();
                     return new Response<List<TagBasicDto>>() { Data = _mapper.Map<List<TagBasicDto>>(orderedTags), Status = true };
                 }
                 else

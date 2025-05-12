@@ -1,4 +1,5 @@
 ﻿using Luftsborn.Application.Contracts.Repositories;
+using Luftsborn.Application.Extensions;
 using Luftsborn.Domain.Entities;
 using Luftsborn.Dtos.Common;
 using MediatR;
@@ -17,12 +18,10 @@ namespace Luftsborn.Application.Features.Notes.Commands.EditContent
     {
         private readonly INoteRepository _noteRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserManager<User> _userManager;
-        public EditContentCommandHandler(INoteRepository noteRepository, IHttpContextAccessor httpContextAccessor, UserManager<User> userManager)
+        public EditContentCommandHandler(INoteRepository noteRepository, IHttpContextAccessor httpContextAccessor)
         {
             _noteRepository = noteRepository;
             _httpContextAccessor = httpContextAccessor;
-            _userManager = userManager;
         }
 
         public async Task<Response<bool>> Handle(EditContentCommand request, CancellationToken cancellationToken)
@@ -32,9 +31,17 @@ namespace Luftsborn.Application.Features.Notes.Commands.EditContent
                 var note = (await _noteRepository.GetAsync(n => n.Id == request.Id)).FirstOrDefault();
                 if (note != null)
                 {
-                    note.EditContent(request.Content, GetCurrentUserId());
-                    await _noteRepository.SaveChangesAsync();
-                    return new Response<bool>() { Data = true, Status = true };
+                    var userId = _httpContextAccessor.GetCurrentUserId();
+                    if (userId != null && userId == note.CreatorUserId) 
+                    {                     
+                        note.EditContent(request.Content, (Guid)userId);
+                        await _noteRepository.SaveChangesAsync();
+                        return new Response<bool>() { Data = true, Status = true };
+                    }
+                    else
+                    {
+                        throw new Exception("UnAuthorized");
+                    }
                 }
                 else
                 {
@@ -44,26 +51,6 @@ namespace Luftsborn.Application.Features.Notes.Commands.EditContent
             catch (Exception ex) 
             {
                 return new Response<bool>() { Message = ex.Message, Status = false };
-            }
-        }
-        private Guid GetCurrentUserId()
-        {
-            var userEmail = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
-            if (userEmail == null)
-            {
-                throw new Exception("Invalid credentials");
-            }
-            else
-            {
-                var user = _userManager.FindByEmailAsync(userEmail).Result;
-                if (user == null)
-                {
-                    throw new Exception("Invalid credentials");
-                }
-                else
-                {
-                    return user.Id;
-                }
             }
         }
     }

@@ -1,7 +1,9 @@
 ﻿using Luftsborn.Application.Contracts.Repositories;
+using Luftsborn.Application.Extensions;
 using Luftsborn.Application.Features.Tags.Commands.AddNote;
 using Luftsborn.Dtos.Common;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +16,13 @@ namespace Luftsborn.Application.Features.Tags.Commands.RemoveNote
     {
         private readonly INoteRepository _noteRepository;
         private readonly ITagRepository _tagRepository;
-        public RemoveNoteCommandHandler(INoteRepository noteRepository, ITagRepository tagRepository)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public RemoveNoteCommandHandler(INoteRepository noteRepository, ITagRepository tagRepository, IHttpContextAccessor httpContextAccessor)
         {
             _noteRepository = noteRepository;
             _tagRepository = tagRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Response<bool>> Handle(RemoveNoteCommand request, CancellationToken cancellationToken)
@@ -27,9 +32,17 @@ namespace Luftsborn.Application.Features.Tags.Commands.RemoveNote
                 var tag = (await _tagRepository.GetAsync(t => t.Id == request.TagId)).FirstOrDefault();
                 if (tag != null)
                 {
-                    tag.RemoveNote(request.NoteId);
-                    await _tagRepository.SaveChangesAsync();
-                    return new Response<bool>() { Data = true, Status = true };
+                    var userId = _httpContextAccessor.GetCurrentUserId();
+                    if (userId != null && userId != tag.CreatorUserId) 
+                    { 
+                        tag.RemoveNote(request.NoteId);
+                        await _tagRepository.SaveChangesAsync();
+                        return new Response<bool>() { Data = true, Status = true };
+                    }
+                    else
+                    {
+                        throw new Exception("UnAuthorized");
+                    }
                 }
                 else
                 {

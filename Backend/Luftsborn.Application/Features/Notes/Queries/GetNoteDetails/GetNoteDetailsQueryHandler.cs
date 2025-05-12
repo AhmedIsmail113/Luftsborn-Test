@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Luftsborn.Application.Contracts.Repositories;
 using Luftsborn.Application.Extensions;
-using Luftsborn.Domain.Entities;
+using Luftsborn.Application.Features.Tags.Queries.GetTagDetails;
 using Luftsborn.Dtos.Common;
 using Luftsborn.Dtos.Entities.Note;
 using Luftsborn.Dtos.Entities.Tag;
@@ -13,32 +13,32 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Luftsborn.Application.Features.Tags.Queries.GetTagDetails
+namespace Luftsborn.Application.Features.Notes.Queries.GetNoteDetails
 {
-    public class GetTagDetailsQueryHandler : IRequestHandler<GetTagDetailsQuery, Response<TagDetailsDto>>
+    public class GetNoteDetailsQueryHandler : IRequestHandler<GetNoteDetailsQuery, Response<NoteDetailsDto>>
     {
-        private readonly ITagRepository _tagRepository;
+        private readonly INoteRepository _noteRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
-        public GetTagDetailsQueryHandler(ITagRepository tagRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        public GetNoteDetailsQueryHandler(INoteRepository noteRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
-            _tagRepository = tagRepository;
+            _noteRepository = noteRepository;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
         }
 
-        public async Task<Response<TagDetailsDto>> Handle(GetTagDetailsQuery request, CancellationToken cancellationToken)
+        public async Task<Response<NoteDetailsDto>> Handle(GetNoteDetailsQuery request, CancellationToken cancellationToken)
         {
             try
             {
-                var tag = (await _tagRepository.GetAsync(a => a.Id == request.Id)).FirstOrDefault();
-                if (tag != null)
+                var note = (await _noteRepository.GetAsync(a => a.Id == request.Id)).FirstOrDefault();
+                if (note != null)
                 {
                     var userId = _httpContextAccessor.GetCurrentUserId();
-                    if (userId != null && userId == tag.CreatorUserId)
+                    if (userId != null && userId == note.CreatorUserId)
                     {
-                        var returnedTag = _mapper.Map<TagDetailsDto>(tag);
-                        return new Response<TagDetailsDto>() { Data = returnedTag, Status = true };
+                        var returnedNote = _mapper.Map<NoteDetailsDto>(note);
+                        return new Response<NoteDetailsDto>() { Data = returnedNote, Status = true };
                     }
                     else
                     {
@@ -49,11 +49,10 @@ namespace Luftsborn.Application.Features.Tags.Queries.GetTagDetails
                 {
                     throw new Exception("Not Found");
                 }
-
             }
             catch (Exception ex)
             {
-                return new Response<TagDetailsDto>() { Message = ex.Message, Status = false };
+                return new Response<NoteDetailsDto>() { Message = ex.Message, Status = false };
             }
         }
     }

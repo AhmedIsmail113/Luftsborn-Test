@@ -15,10 +15,11 @@ namespace Luftsborn.Infrastructure.Managers.RepositoriesManagers
             
         }
 
-        public async Task<IQueryable<Note>> FilterAsync(string? filter = null, Guid? userId = null, bool? isDeleted = false)
+        public async Task<IQueryable<Note>> FilterAsync(string? filter = null, Guid? userId = null, Guid? tagId = null, bool? isDeleted = false)
         {
             return (await GetAsync()).Where(a => filter == null || a.Title.ToLower().Contains(filter.ToLower()))
                 .Where(a => userId == null || a.CreatorUserId == userId)
+                .Where(a => tagId == null || (a.Tag != null && a.Tag.Id == tagId))
                 .Where(a => a.IsDeleted == isDeleted);
         }
 

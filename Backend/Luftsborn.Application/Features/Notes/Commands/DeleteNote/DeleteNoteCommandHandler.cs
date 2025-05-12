@@ -9,30 +9,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Luftsborn.Application.Features.Tags.Commands.DeleteTag
+namespace Luftsborn.Application.Features.Notes.Commands.DeleteNote
 {
-    public class DeleteTagCommandHandler : IRequestHandler<DeleteTagCommand, Response<bool>>
+    public class DeleteNoteCommandHandler : IRequestHandler<DeleteNoteCommand, Response<bool>>
     {
-        private readonly ITagRepository _tagRepository;
+        private readonly INoteRepository _noteRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public DeleteTagCommandHandler(ITagRepository tagRepository, IHttpContextAccessor httpContextAccessor)
+        public DeleteNoteCommandHandler(INoteRepository noteRepository, IHttpContextAccessor httpContextAccessor)
         {
-            _tagRepository = tagRepository;
+            _noteRepository = noteRepository;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<Response<bool>> Handle(DeleteTagCommand request, CancellationToken cancellationToken)
+        public async Task<Response<bool>> Handle(DeleteNoteCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var tag = (await _tagRepository.GetAsync(t => t.Id == request.Id)).FirstOrDefault();
-                if (tag != null)
+                var note = (await _noteRepository.GetAsync(n => n.Id == request.Id)).FirstOrDefault();
+                if (note != null)
                 {
                     var userId = _httpContextAccessor.GetCurrentUserId();
-                    if (userId != null && userId == tag.CreatorUserId)
+                    if (userId != null && userId == note.CreatorUserId)
                     {
-                        tag.Delete((Guid)userId);
-                        await _tagRepository.SaveChangesAsync();
+                        note.Delete((Guid)userId);
+                        await _noteRepository.SaveChangesAsync();
                         return new Response<bool>() { Data = true, Status = true };
                     }
                     else

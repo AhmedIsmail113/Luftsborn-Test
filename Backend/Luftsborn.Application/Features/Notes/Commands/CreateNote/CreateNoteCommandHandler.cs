@@ -1,4 +1,5 @@
 ﻿using Luftsborn.Application.Contracts.Repositories;
+using Luftsborn.Application.Extensions;
 using Luftsborn.Domain.Entities;
 using Luftsborn.Dtos.Common;
 using MediatR;
@@ -17,44 +18,30 @@ namespace Luftsborn.Application.Features.Notes.Commands.CreateNote
     {
         private readonly INoteRepository _noteRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserManager<User> _userManager;
-        public CreateNoteCommandHandler(INoteRepository noteRepository, IHttpContextAccessor httpContextAccessor, UserManager<User> userManager)
+        public CreateNoteCommandHandler(INoteRepository noteRepository, IHttpContextAccessor httpContextAccessor)
         {
             _noteRepository = noteRepository;
             _httpContextAccessor = httpContextAccessor;
-            _userManager = userManager;
         }
 
         public async Task<Response<Guid>> Handle(CreateNoteCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var note = await _noteRepository.CreateAsync(new Note(GetCurrentUserId(), request.Title, request.Content));
-                return new Response<Guid>() { Data = note.Id, Status = true };
+                var userId = _httpContextAccessor.GetCurrentUserId();
+                if (userId != null)
+                {
+                    var note = await _noteRepository.CreateAsync(new Note((Guid)userId, request.Title, request.Content));
+                    return new Response<Guid>() { Data = note.Id, Status = true };
+                }
+                else 
+                {
+                    throw new Exception("UnAuthorized");
+                }
             }
             catch (Exception ex)
             {
                 return new Response<Guid>() { Message = ex.Message, Status = false };
-            }
-        }
-        private Guid GetCurrentUserId()
-        {
-            var userEmail = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email)!.Value;
-            if (userEmail == null)
-            {
-                throw new Exception("Invalid credentials");
-            }
-            else
-            {
-                var user = _userManager.FindByEmailAsync(userEmail).Result;
-                if (user == null)
-                {
-                    throw new Exception("Invalid credentials");
-                }
-                else
-                {
-                    return user.Id;
-                }
             }
         }
     }

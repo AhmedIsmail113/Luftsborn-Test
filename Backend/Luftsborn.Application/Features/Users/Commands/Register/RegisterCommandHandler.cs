@@ -32,6 +32,7 @@ namespace Luftsborn.Application.Features.Users.Commands.Register
                 {
                     var userClaims = new List<Claim>
                 {
+                    new Claim(ClaimTypes.NameIdentifier, newUser.Id.ToString()),
                     new Claim (ClaimTypes.Name, userName),
                     new Claim(ClaimTypes.Email, newUser.Email!),
                 };

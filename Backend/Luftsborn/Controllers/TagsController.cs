@@ -4,11 +4,13 @@ using Luftsborn.Application.Features.Tags.Commands.DeleteTag;
 using Luftsborn.Application.Features.Tags.Commands.RemoveNote;
 using Luftsborn.Application.Features.Tags.Commands.RenameTag;
 using Luftsborn.Application.Features.Tags.Queries.FilterTags;
+using Luftsborn.Application.Features.Tags.Queries.FilterTagsPaginated;
 using Luftsborn.Application.Features.Tags.Queries.GetTagDetails;
 using Luftsborn.Application.Features.Users.Commands.Register;
 using Luftsborn.Dtos.Common;
 using Luftsborn.Dtos.Entities.Tag;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +18,7 @@ namespace Luftsborn.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TagsController : ControllerBase
     {
         [HttpPost("CreateTag")]
@@ -25,13 +28,20 @@ namespace Luftsborn.Controllers
             return Ok(await mediator.Send(command));
         }
 
-        [HttpDelete("DeleteTag")]
+        [HttpPut("DeleteTag")]
         [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> DeleteTag(IMediator mediator, [FromBody] DeleteTagCommand command)
+        public async Task<IActionResult> DeleteTag(IMediator mediator, [FromBody]  DeleteTagCommand command)
         {
             return Ok(await mediator.Send(command));
         }
-        
+
+        [HttpDelete("DeleteTagPhysically")]
+        [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteTagPhysically(IMediator mediator, [FromBody] DeleteTagPhysicallyCommand command)
+        {
+            return Ok(await mediator.Send(command));
+        }
+
         [HttpPut("RenameTag")]
         [ProducesResponseType(typeof(Response<bool>), StatusCodes.Status200OK)]
         public async Task<IActionResult> RenameTag(IMediator mediator, [FromBody] RenameTagCommand command)
@@ -59,6 +69,14 @@ namespace Luftsborn.Controllers
         {
             return Ok(await mediator.Send(query));
         }
+
+        [HttpGet("FilterTagsPaginated")]
+        [ProducesResponseType(typeof(Response<List<TagBasicDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> FilterTagsPaginated(IMediator mediator, [FromQuery] FilterTagsPaginatedQuery query)
+        {
+            return Ok(await mediator.Send(query));
+        }
+
         [HttpGet("GetTagDetails")]
         [ProducesResponseType(typeof(Response<TagDetailsDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTagDetails(IMediator mediator, [FromQuery] GetTagDetailsQuery query)
