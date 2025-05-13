@@ -10,12 +10,14 @@ namespace Luftsborn.Application.Features.Notes.Commands.CreateNote
 {
     public class CreateNoteCommand : IRequest<Response<Guid>>
     {
-        public CreateNoteCommand(string title, string content)
+        public CreateNoteCommand(string title, string content, Guid tagId)
         {
             Title = title;
             Content = content;
+            TagId = tagId;
         }
         public string Title { get; set; }
         public string Content { get; set; }
+        public Guid TagId { get; set; }
     }
 }

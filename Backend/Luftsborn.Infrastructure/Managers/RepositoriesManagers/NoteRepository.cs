@@ -19,7 +19,7 @@ namespace Luftsborn.Infrastructure.Managers.RepositoriesManagers
         {
             return (await GetAsync()).Where(a => filter == null || a.Title.ToLower().Contains(filter.ToLower()))
                 .Where(a => userId == null || a.CreatorUserId == userId)
-                .Where(a => tagId == null || (a.Tag != null && a.Tag.Id == tagId))
+                .Where(a => tagId == null || a.Tag.Id == tagId)
                 .Where(a => a.IsDeleted == isDeleted);
         }
 

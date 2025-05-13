@@ -15,6 +15,10 @@ namespace Luftsborn.Application.Features.Notes.Queries.GetNoteDetails
         {
             Id = id;
         }
+        public GetNoteDetailsQuery(): this(Guid.Empty)
+        {
+            
+        }
         public Guid Id { get; set; }
     }
 }

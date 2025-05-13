@@ -14,10 +14,11 @@ namespace Luftsborn.Infrastructure.Managers.RepositoriesManagers
         {
             
         }
-        public async Task<IQueryable<Tag>> FilterAsync(string? filter = null, Guid? userId = null)
+        public async Task<IQueryable<Tag>> FilterAsync(string? filter = null, Guid? userId = null, bool? isDeleted = false)
         {
             return (await GetAsync()).Where(a => filter == null || a.Name.ToLower().Contains(filter.ToLower()))
-                .Where(a => userId == null || a.CreatorUserId == userId);
+                .Where(a => userId == null || a.CreatorUserId == userId)
+                .Where(a => a.IsDeleted == isDeleted );
         }
 
         public override IQueryable<Tag> OrderBy(IQueryable<Tag> entities, string? orderBy, bool isAccending = true)

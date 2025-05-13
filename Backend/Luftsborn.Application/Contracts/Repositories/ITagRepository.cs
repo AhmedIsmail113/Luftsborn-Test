@@ -9,6 +9,6 @@ namespace Luftsborn.Application.Contracts.Repositories
 {
     public interface ITagRepository : ICommonRepository<Tag>
     {
-        public Task<IQueryable<Tag>> FilterAsync(string? filter = null, Guid? userId = null);
+        public Task<IQueryable<Tag>> FilterAsync(string? filter = null, Guid? userId = null, bool? isDeleted = false);
     }
 }

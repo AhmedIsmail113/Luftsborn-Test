@@ -31,7 +31,7 @@ namespace Luftsborn.Application.Features.Notes.Queries.GetNoteDetails
         {
             try
             {
-                var note = (await _noteRepository.GetAsync(a => a.Id == request.Id)).FirstOrDefault();
+                var note = (await _noteRepository.GetAsync(a => a.Id == request.Id)).IncludeProperties("Tag").FirstOrDefault();
                 if (note != null)
                 {
                     var userId = _httpContextAccessor.GetCurrentUserId();

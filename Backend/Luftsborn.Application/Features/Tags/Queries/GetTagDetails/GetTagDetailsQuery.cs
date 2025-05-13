@@ -15,6 +15,10 @@ namespace Luftsborn.Application.Features.Tags.Queries.GetTagDetails
         {
             Id = id;
         }
+        public GetTagDetailsQuery() : this(Guid.Empty)
+        {
+            
+        }
         public Guid Id { get; set; }
     }
 }

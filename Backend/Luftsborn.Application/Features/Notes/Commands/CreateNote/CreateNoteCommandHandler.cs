@@ -17,10 +17,12 @@ namespace Luftsborn.Application.Features.Notes.Commands.CreateNote
     public class CreateNoteCommandHandler : IRequestHandler<CreateNoteCommand, Response<Guid>>
     {
         private readonly INoteRepository _noteRepository;
+        private readonly ITagRepository _tagRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public CreateNoteCommandHandler(INoteRepository noteRepository, IHttpContextAccessor httpContextAccessor)
+        public CreateNoteCommandHandler(INoteRepository noteRepository, ITagRepository tagRepository, IHttpContextAccessor httpContextAccessor)
         {
             _noteRepository = noteRepository;
+            _tagRepository = tagRepository;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -28,16 +30,25 @@ namespace Luftsborn.Application.Features.Notes.Commands.CreateNote
         {
             try
             {
-                var userId = _httpContextAccessor.GetCurrentUserId();
-                if (userId != null)
+                var tag = (await _tagRepository.GetAsync(t => t.Id == request.TagId)).FirstOrDefault();
+                if (tag != null)
                 {
-                    var note = await _noteRepository.CreateAsync(new Note((Guid)userId, request.Title, request.Content));
-                    return new Response<Guid>() { Data = note.Id, Status = true };
+                    var userId = _httpContextAccessor.GetCurrentUserId();
+                    if (userId != null && userId == tag.CreatorUserId)
+                    {
+                        var note = await _noteRepository.CreateAsync(new Note((Guid)userId, request.Title, request.Content, tag));
+                        return new Response<Guid>() { Data = note.Id, Status = true };
+                    }
+                    else
+                    {
+                        throw new Exception("UnAuthorized");
+                    }
                 }
-                else 
+                else
                 {
-                    throw new Exception("UnAuthorized");
+                    throw new Exception("Not Found");
                 }
+
             }
             catch (Exception ex)
             {

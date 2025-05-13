@@ -32,7 +32,7 @@ namespace Luftsborn.Application.Features.Tags.Queries.FilterTags
                 var userId = _httpContextAccessor.GetCurrentUserId();
                 if (userId != null)
                 {
-                    var tags = await _tagRepository.FilterAsync(request.Filter, userId);
+                    var tags = await _tagRepository.FilterAsync(request.Filter, userId, request.IsDeleted);
                     var orderedTags = (_tagRepository.OrderBy(tags, request.OrderBy, request.IsAcending)).ToList();
                     return new Response<List<TagBasicDto>>() { Data = _mapper.Map<List<TagBasicDto>>(orderedTags), Status = true };
                 }

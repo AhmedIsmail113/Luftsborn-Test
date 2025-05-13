@@ -12,14 +12,17 @@ namespace Luftsborn.Application.Features.Tags.Queries.FilterTags
 {
     public class FilterTagsQuery : BaseQueryRequest, IRequest<Response<List<TagBasicDto>>>
     {
-        public FilterTagsQuery(string? filter = null)
+        public FilterTagsQuery(string? filter = null, bool isDeleted = false)
         {
             Filter = filter;
+            IsDeleted = isDeleted;
         }
-        public FilterTagsQuery() : this(null)
+        public FilterTagsQuery() : this(null, false)
         {
 
         }
         public string? Filter { get; set; }
+        public bool IsDeleted { get; set; }
+
     }
 }

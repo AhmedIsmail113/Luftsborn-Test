@@ -12,14 +12,16 @@ namespace Luftsborn.Application.Features.Tags.Queries.FilterTagsPaginated
 {
     public class FilterTagsPaginatedQuery : PageRequest, IRequest<Response<List<TagBasicDto>>>
     {
-        public FilterTagsPaginatedQuery(string? filter = null)
+        public FilterTagsPaginatedQuery(string? filter = null, bool isDeleted = false)
         {
             Filter = filter;
+            IsDeleted = isDeleted;
         }
-        public FilterTagsPaginatedQuery() : this(null)
+        public FilterTagsPaginatedQuery() : this(null, false)
         {
 
         }
         public string? Filter { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

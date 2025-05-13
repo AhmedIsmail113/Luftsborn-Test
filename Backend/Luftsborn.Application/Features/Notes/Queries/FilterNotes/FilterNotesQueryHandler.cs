@@ -37,6 +37,7 @@ namespace Luftsborn.Application.Features.Notes.Queries.FilterNotes
                 if (userId != null) 
                 {
                     var tags = await _noteRepository.FilterAsync(request.Filter, userId, request.TagId, request.IsDeleted);
+                    var t = tags.ToList();
                     var orderedNotes = (_noteRepository.OrderBy(tags, request.OrderBy, request.IsAcending)).ToList();
                     return new Response<List<NoteBasicDto>>() { Data = _mapper.Map<List<NoteBasicDto>>(orderedNotes), Status = true };
                 }

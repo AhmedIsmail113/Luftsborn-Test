@@ -31,7 +31,7 @@ namespace Luftsborn.Application.Features.Tags.Queries.GetTagDetails
         {
             try
             {
-                var tag = (await _tagRepository.GetAsync(a => a.Id == request.Id)).FirstOrDefault();
+                var tag = (await _tagRepository.GetAsync(a => a.Id == request.Id)).IncludeProperties("Notes").FirstOrDefault();
                 if (tag != null)
                 {
                     var userId = _httpContextAccessor.GetCurrentUserId();
